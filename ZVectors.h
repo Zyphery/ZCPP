@@ -15,6 +15,8 @@ namespace ZCPP
 				std::is_same<Type, short int>() ||
 				std::is_same<Type, unsigned short int>() ||
 				std::is_same<Type, long int>() ||
+				std::is_same<Type, int>() ||
+				std::is_same<Type, unsigned int>() ||
 				std::is_same<Type, unsigned long int>() ||
 				std::is_same<Type, long long int>() ||
 				std::is_same<Type, unsigned long long int>() ||
@@ -25,19 +27,24 @@ namespace ZCPP
 
 			Type x, y;
 
-			Vec2(const float _x, const float _y) : x(_x), y(_y) {}
-			Vec2(const float v) : x(v), y(v) {}
+			Vec2(const Type _x, const Type _y) : x(_x), y(_y) {}
+			Vec2(const Type v) : x(v), y(v) {}
 			Vec2() : x(0), y(0) {}
 
-			static const float Length(Vec2 v)
+			static const Type Length(Vec2 v)
 			{
 				return sqrt(v.x * v.x + v.y * v.y);
 			}
 
-			static const float Distance(Vec2 v0, Vec2 v1)
+			static const Type LengthSqr(Vec2 v)
 			{
-				float _x = v1.x - v0.x;
-				float _y = v1.y - v0.y;
+				return v.x * v.x + v.y * v.y;
+			}
+
+			static const Type Distance(Vec2 v0, Vec2 v1)
+			{
+				Type _x = v1.x - v0.x;
+				Type _y = v1.y - v0.y;
 				return sqrt(_x * _x + _y * _y);
 			}
 
@@ -47,7 +54,7 @@ namespace ZCPP
 				return Vec2(v.x * d, v.y * d);
 			}
 
-			static const float DotProduct(Vec2 v0, Vec2 v1)
+			static const Type DotProduct(Vec2 v0, Vec2 v1)
 			{
 				return v0.x * v1.x + v0.y * v1.y;
 			}
@@ -67,14 +74,14 @@ namespace ZCPP
 				return Vec2(fabs(v.x), fabs(v.y));
 			}
 
-			static Vec2 Rotate(Vec2 v, float r)
+			static Vec2 Rotate(Vec2 v, Type r)
 			{
-				float cr = cos(r);
-				float sr = sin(r);
+				Type cr = cos(r);
+				Type sr = sin(r);
 				return Vec2(v.x * cr - v.y * sr, v.x * sr + v.y * cr);
 			}
 
-			static Vec2 Direction(float r)
+			static Vec2 Direction(Type r)
 			{
 				return Vec2(cos(r), sin(r));
 			}
@@ -84,7 +91,7 @@ namespace ZCPP
 				return v - n * 2.0 * DotProduct(v, n);
 			}
 
-			const float Length()
+			const Type Length()
 			{
 				return Length(*this);
 			}
@@ -109,7 +116,7 @@ namespace ZCPP
 				return Abs(*this);
 			}
 
-			Vec2 Rotate(float r)
+			Vec2 Rotate(Type r)
 			{
 				return Rotate(*this, r);
 			}
@@ -161,6 +168,8 @@ namespace ZCPP
 				std::is_same<Type, short int>() ||
 				std::is_same<Type, unsigned short int>() ||
 				std::is_same<Type, long int>() ||
+				std::is_same<Type, int>() ||
+				std::is_same<Type, unsigned int>() ||
 				std::is_same<Type, unsigned long int>() ||
 				std::is_same<Type, long long int>() ||
 				std::is_same<Type, unsigned long long int>() ||
@@ -171,21 +180,26 @@ namespace ZCPP
 
 			Type x, y, z;
 
-			Vec3(const float _x, const float _y, const float _z) : x(_x), y(_y), z(_z) {}
-			Vec3(const float v) : x(v), y(v), z(v) {}
+			Vec3(const Type _x, const Type _y, const Type _z) : x(_x), y(_y), z(_z) {}
+			Vec3(const Type v) : x(v), y(v), z(v) {}
 			Vec3(const Vec2<Type> v, float _z) : x(v.x), y(v.y), z(_z) {}
 			Vec3() : x(0), y(0), z(0) {}
 
-			static const float Length(Vec3 v)
+			static const Type Length(Vec3 v)
 			{
 				return sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
 			}
 
-			static const float Distance(Vec3 v0, Vec3 v1)
+			static const Type LengthSqr(Vec3 v)
 			{
-				float _x = v1.x - v0.x;
-				float _y = v1.y - v0.y;
-				float _z = v1.z - v0.z;
+				return v.x * v.x + v.y * v.y + v.z * v.z;
+			}
+
+			static const Type Distance(Vec3 v0, Vec3 v1)
+			{
+				Type _x = v1.x - v0.x;
+				Type _y = v1.y - v0.y;
+				Type _z = v1.z - v0.z;
 				return sqrt(_x * _x + _y * _y + _z * _z);
 			}
 
@@ -195,7 +209,7 @@ namespace ZCPP
 				return Vec3(v.x * d, v.y * d, v.z * d);
 			}
 
-			static const float DotProduct(Vec3 v0, Vec3 v1)
+			static const Type DotProduct(Vec3 v0, Vec3 v1)
 			{
 				return v0.x * v1.x + v0.y * v1.y + v0.z * v1.z;
 			}
@@ -297,6 +311,8 @@ namespace ZCPP
 				std::is_same<Type, short int>() ||
 				std::is_same<Type, unsigned short int>() ||
 				std::is_same<Type, long int>() ||
+				std::is_same<Type, int>() ||
+				std::is_same<Type, unsigned int>() ||
 				std::is_same<Type, unsigned long int>() ||
 				std::is_same<Type, long long int>() ||
 				std::is_same<Type, unsigned long long int>() ||
@@ -307,22 +323,27 @@ namespace ZCPP
 
 			Type x, y, z, w;
 
-			Vec4(const float _x, const float _y, const float _z, const float _w) : x(_x), y(_y), z(_z), w(_w) {}
-			Vec4(const float v) : x(v), y(v), z(v), w(v) {}
+			Vec4(const Type _x, const Type _y, const Type _z, const Type _w) : x(_x), y(_y), z(_z), w(_w) {}
+			Vec4(const Type v) : x(v), y(v), z(v), w(v) {}
 			Vec4(const Vec3<Type> v, float _w) : x(v.x), y(v.y), z(v.z), w(_w) {}
 			Vec4() : x(0), y(0), z(0), w(0) {}
 
-			static const float Length(Vec4 v)
+			static const Type Length(Vec4 v)
 			{
 				return sqrt(v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w);
 			}
 
-			static const float Distance(Vec4 v0, Vec4 v1)
+			static const Type LengthSqr(Vec4 v)
 			{
-				float _x = v1.x - v0.x;
-				float _y = v1.y - v0.y;
-				float _z = v1.z - v0.z;
-				float _w = v1.w - v0.w;
+				return v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w;
+			}
+
+			static const Type Distance(Vec4 v0, Vec4 v1)
+			{
+				Type _x = v1.x - v0.x;
+				Type _y = v1.y - v0.y;
+				Type _z = v1.z - v0.z;
+				Type _w = v1.w - v0.w;
 				return sqrt(_x * _x + _y * _y + _z * _z + _w * _w);
 			}
 
@@ -332,7 +353,7 @@ namespace ZCPP
 				return Vec4(v.x * d, v.y * d, v.z * d, v.w * d);
 			}
 
-			static const float DotProduct(Vec4 v0, Vec4 v1)
+			static const Type DotProduct(Vec4 v0, Vec4 v1)
 			{
 				return v0.x * v1.x + v0.y * v1.y + v0.z * v1.z + v0.w * v1.w;
 			}
@@ -371,7 +392,7 @@ namespace ZCPP
 					v1.w * v0.w - v1.x * v0.x - v1.y * v0.y - v1.z * v0.z);
 			}
 
-			const float Length()
+			const Type Length()
 			{
 				return Length(*this);
 			}
