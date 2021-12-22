@@ -50,7 +50,7 @@ namespace ZCPP
 
 			static Vec2 Normalized(Vec2 v)
 			{
-				float d = 1.0 / Length(v);
+				Type d = 1.0 / Length(v);
 				return Vec2(v.x * d, v.y * d);
 			}
 
@@ -182,7 +182,7 @@ namespace ZCPP
 
 			Vec3(const Type _x, const Type _y, const Type _z) : x(_x), y(_y), z(_z) {}
 			Vec3(const Type v) : x(v), y(v), z(v) {}
-			Vec3(const Vec2<Type> v, float _z) : x(v.x), y(v.y), z(_z) {}
+			Vec3(const Vec2<Type> v, Type _z) : x(v.x), y(v.y), z(_z) {}
 			Vec3() : x(0), y(0), z(0) {}
 
 			static const Type Length(Vec3 v)
@@ -205,7 +205,7 @@ namespace ZCPP
 
 			static Vec3 Normalized(Vec3 v)
 			{
-				float d = 1.0 / Length(v);
+				Type d = 1.0 / Length(v);
 				return Vec3(v.x * d, v.y * d, v.z * d);
 			}
 
@@ -239,7 +239,7 @@ namespace ZCPP
 				return v - n * 2.0 * DotProduct(v, n);
 			}
 
-			float Length()
+			Type Length()
 			{
 				return Length(*this);
 			}
@@ -325,7 +325,7 @@ namespace ZCPP
 
 			Vec4(const Type _x, const Type _y, const Type _z, const Type _w) : x(_x), y(_y), z(_z), w(_w) {}
 			Vec4(const Type v) : x(v), y(v), z(v), w(v) {}
-			Vec4(const Vec3<Type> v, float _w) : x(v.x), y(v.y), z(v.z), w(_w) {}
+			Vec4(const Vec3<Type> v, Type _w) : x(v.x), y(v.y), z(v.z), w(_w) {}
 			Vec4() : x(0), y(0), z(0), w(0) {}
 
 			static const Type Length(Vec4 v)
@@ -349,7 +349,7 @@ namespace ZCPP
 
 			static Vec4 Normalized(Vec4 v)
 			{
-				float d = 1.0 / Length(v);
+				Type d = 1.0 / Length(v);
 				return Vec4(v.x * d, v.y * d, v.z * d, v.w * d);
 			}
 
@@ -745,7 +745,7 @@ namespace ZCPP
 				Quaternion q;
 
 				r *= 0.5;
-				float sr = sin(r);
+				Type sr = sin(r);
 
 				q.w = cos(r);
 				q.x = axis.x * sr;
@@ -778,16 +778,16 @@ namespace ZCPP
 			{
 				Matrix4 m;
 
-				float xx = q.x * q.x;
-				float yy = q.y * q.y;
-				float zz = q.z * q.z;
+				Type xx = q.x * q.x;
+				Type yy = q.y * q.y;
+				Type zz = q.z * q.z;
 
-				float xy = q.x * q.y;
-				float xz = q.x * q.z;
-				float xw = q.x * q.w;
-				float yz = q.y * q.z;
-				float yw = q.y * q.w;
-				float zw = q.z * q.w;
+				Type xy = q.x * q.y;
+				Type xz = q.x * q.z;
+				Type xw = q.x * q.w;
+				Type yz = q.y * q.z;
+				Type yw = q.y * q.w;
+				Type zw = q.z * q.w;
 				
 				// 1 - 2 y^2 - 2 z^2	2 xy - 2 wz			2 xz + 2 wy			0
 				// 2 xy + 2wz			1 - 2 x^2 - 2 z^2	2 yz - 2 wx			0
