@@ -1,12 +1,15 @@
 #pragma once
-#include <ostream>
+
+#include <iostream>
 #include <math.h>
+
+#define TEMPLATE template<typename Type = double>
 
 namespace ZCPP
 {
 	namespace Vector
 	{
-		template<typename Type = float> class Vec2
+		TEMPLATE class Vec2
 		{
 		public:
 			static_assert(
@@ -27,13 +30,13 @@ namespace ZCPP
 
 			Type x, y;
 
-			Vec2(const Type _x, const Type _y) : x(_x), y(_y) {}
-			Vec2(const Type v) : x(v), y(v) {}
-			Vec2() : x(0), y(0) {}
+			constexpr Vec2() : x(0), y(0) {}
+			constexpr Vec2(const Type v) : x(v), y(v) {}
+			constexpr Vec2(const Type _x, const Type _y) : x(_x), y(_y) {}
 
 			static const Type Length(Vec2 v)
 			{
-				return sqrt(v.x * v.x + v.y * v.y);
+				return (Type)sqrt(v.x * v.x + v.y * v.y);
 			}
 
 			static const Type LengthSqr(Vec2 v)
@@ -45,12 +48,12 @@ namespace ZCPP
 			{
 				Type _x = v1.x - v0.x;
 				Type _y = v1.y - v0.y;
-				return sqrt(_x * _x + _y * _y);
+				return (Type)sqrt(_x * _x + _y * _y);
 			}
 
 			static Vec2 Normalized(Vec2 v)
 			{
-				Type d = 1.0 / Length(v);
+				Type d = ((Type)1.0) / Length(v);
 				return Vec2(v.x * d, v.y * d);
 			}
 
@@ -61,37 +64,53 @@ namespace ZCPP
 
 			static Vec2 Floor(Vec2 v)
 			{
-				return Vec2(floor(v.x), floor(v.y));
+				return Vec2((Type)floor(v.x), (Type)floor(v.y));
 			}
 
 			static Vec2 Ceil(Vec2 v)
 			{
-				return Vec2(ceil(v.x), ceil(v.y));
+				return Vec2((Type)ceil(v.x), (Type)ceil(v.y));
 			}
 
 			static Vec2 Abs(Vec2 v)
 			{
-				return Vec2(fabs(v.x), fabs(v.y));
+				return Vec2((Type)abs(v.x), (Type)abs(v.y));
 			}
 
 			static Vec2 Rotate(Vec2 v, Type r)
 			{
-				Type cr = cos(r);
-				Type sr = sin(r);
+				Type cr = (Type)cos(r);
+				Type sr = (Type)sin(r);
 				return Vec2(v.x * cr - v.y * sr, v.x * sr + v.y * cr);
 			}
 
 			static Vec2 Direction(Type r)
 			{
-				return Vec2(cos(r), sin(r));
+				return Vec2((Type)cos(r), (Type)sin(r));
 			}
 
 			static Vec2 Reflect(Vec2 v, Vec2 n)
 			{
-				return v - n * 2.0 * DotProduct(v, n);
+				return v - n * ((Type)2.0) * DotProduct(v, n);
 			}
 
-			const Type Length()
+			static Vec2 CartesianToPolar(Vec2 v)
+			{
+				Vec2 polar;
+				polar.x = Length(v);
+				polar.y = (Type)atan(v.x / v.y);
+				return polar;
+			}
+
+			static Vec2 PolarToCartesian(Vec2 v)
+			{
+				Vec2 cartesian;
+				cartesian.x = v.x * (Type)cos(v.y);
+				cartesian.y = v.x * (Type)sin(v.y);
+				return cartesian;
+			}
+
+			Type Length()
 			{
 				return Length(*this);
 			}
@@ -126,6 +145,15 @@ namespace ZCPP
 				return Reflect(*this, n);
 			}
 
+			Type& operator [](const size_t index)
+			{
+				switch (index)
+				{
+				case 0: return this->x;
+				case 1: return this->y;
+				}
+			}
+
 			bool operator == (const Vec2& rhs) { return this->x == rhs.x && this->y == rhs.y; }
 			bool operator != (const Vec2& rhs) { return !(this == rhs); }
 			bool operator < (const Vec2& rhs) { return this->x < rhs.x && this->y < rhs.y; }
@@ -143,23 +171,28 @@ namespace ZCPP
 			Vec2 operator += (Vec2 rhs) { *this = *this + rhs; return *this; }
 			Vec2 operator -= (Vec2 rhs) { *this = *this - rhs; return *this; }
 
-			Vec2& operator ++ () { return Vec2(x++, y++); }
-			Vec2& operator -- () { return Vec2(x--, y--); }
+			Vec2& operator ++ () { return Vec2(++x, ++y); }
+			Vec2& operator -- () { return Vec2(--x, --y); }
 			Vec2 operator ++ (int) { return Vec2(x++, y++); }
 			Vec2 operator -- (int) { return Vec2(x--, y--); }
 
 			Vec2 operator - () { return Vec2(-x, -y); }
 
-			template<typename Type> friend std::ostream& operator << (std::ostream& os, const Vec2<Type>& v);
+			TEMPLATE friend std::ostream& operator << (std::ostream& os, const Vec2<Type>& v);
 		};
 
-		template<typename Type = float> std::ostream& operator << (std::ostream& os, const Vec2<Type>& v)
+		TEMPLATE Vec2<Type> operator - (const float& lhs, const Vec2<Type>& rhs) { return Vec2(lhs) - rhs; }
+		TEMPLATE Vec2<Type> operator + (const float& lhs, const Vec2<Type>& rhs) { return Vec2(lhs) + rhs; }
+		TEMPLATE Vec2<Type> operator * (const float& lhs, const Vec2<Type>& rhs) { return Vec2(lhs) * rhs; }
+		TEMPLATE Vec2<Type> operator / (const float& lhs, const Vec2<Type>& rhs) { return Vec2(lhs) / rhs; }
+
+		TEMPLATE std::ostream& operator << (std::ostream& os, const Vec2<Type>& v)
 		{
 			os << "<" << v.x << ", " << v.y << ">";
 			return os;
 		}
 
-		template<typename Type = float> class Vec3
+		TEMPLATE class Vec3
 		{
 		public:
 			static_assert(
@@ -180,14 +213,16 @@ namespace ZCPP
 
 			Type x, y, z;
 
-			Vec3(const Type _x, const Type _y, const Type _z) : x(_x), y(_y), z(_z) {}
-			Vec3(const Type v) : x(v), y(v), z(v) {}
-			Vec3(const Vec2<Type> v, Type _z) : x(v.x), y(v.y), z(_z) {}
-			Vec3() : x(0), y(0), z(0) {}
+			constexpr Vec3() : x(0), y(0), z(0) {}
+			constexpr Vec3(const Type v) : x(v), y(v), z(v) {}
+			constexpr Vec3(const Type _x, const Type _y, const Type _z) : x(_x), y(_y), z(_z) {}
+			constexpr Vec3(const Vec2<Type> v, Type _z) : x(v.x), y(v.y), z(_z) {}
+
+			operator Vec2<Type>() const { return Vec2<Type>(x, y); }
 
 			static const Type Length(Vec3 v)
 			{
-				return sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+				return (Type)sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
 			}
 
 			static const Type LengthSqr(Vec3 v)
@@ -200,12 +235,12 @@ namespace ZCPP
 				Type _x = v1.x - v0.x;
 				Type _y = v1.y - v0.y;
 				Type _z = v1.z - v0.z;
-				return sqrt(_x * _x + _y * _y + _z * _z);
+				return (Type)sqrt(_x * _x + _y * _y + _z * _z);
 			}
 
 			static Vec3 Normalized(Vec3 v)
 			{
-				Type d = 1.0 / Length(v);
+				Type d = ((Type)1.0) / Length(v);
 				return Vec3(v.x * d, v.y * d, v.z * d);
 			}
 
@@ -221,22 +256,22 @@ namespace ZCPP
 
 			static Vec3 Floor(Vec3 v)
 			{
-				return Vec3(floor(v.x), floor(v.y), floor(v.z));
+				return Vec3((Type)floor(v.x), (Type)floor(v.y), (Type)floor(v.z));
 			}
 
 			static Vec3 Ceil(Vec3 v)
 			{
-				return Vec3(ceil(v.x), ceil(v.y), ceil(v.z));
+				return Vec3((Type)ceil(v.x), (Type)ceil(v.y), (Type)ceil(v.z));
 			}
 
 			static Vec3 Abs(Vec3 v)
 			{
-				return Vec3(abs(v.x), abs(v.y), abs(v.z));
+				return Vec3((Type)abs(v.x), (Type)abs(v.y), (Type)abs(v.z));
 			}
 
 			static Vec3 Reflect(Vec3 v, Vec3 n)
 			{
-				return v - n * 2.0 * DotProduct(v, n);
+				return v - n * ((Type)2.0) * DotProduct(v, n);
 			}
 
 			Type Length()
@@ -293,16 +328,31 @@ namespace ZCPP
 
 			Vec3 operator - () { return Vec3(-x, -y, -z); }
 
-			template<typename Type> friend std::ostream& operator << (std::ostream& os, const Vec3<Type>& v);
+			Type& operator [](const size_t index)
+			{
+				switch (index)
+				{
+				case 0: return this->x;
+				case 1: return this->y;
+				case 2: return this->z;
+				}
+			}
+
+			TEMPLATE friend std::ostream& operator << (std::ostream& os, const Vec3<Type>& v);
 		};
 
-		template<typename Type = float> std::ostream& operator << (std::ostream& os, const Vec3<Type>& v)
+		TEMPLATE Vec3<Type> operator - (const float& lhs, const Vec3<Type>& rhs) { return Vec3(lhs) - rhs; }
+		TEMPLATE Vec3<Type> operator + (const float& lhs, const Vec3<Type>& rhs) { return Vec3(lhs) + rhs; }
+		TEMPLATE Vec3<Type> operator * (const float& lhs, const Vec3<Type>& rhs) { return Vec3(lhs) * rhs; }
+		TEMPLATE Vec3<Type> operator / (const float& lhs, const Vec3<Type>& rhs) { return Vec3(lhs) / rhs; }
+
+		TEMPLATE std::ostream& operator << (std::ostream& os, const Vec3<Type>& v)
 		{
 			os << "<" << v.x << ", " << v.y << ", " << v.z << ">";
 			return os;
 		}
 
-		template<typename Type = float> class Vec4
+		TEMPLATE class Vec4
 		{
 		public:
 			static_assert(
@@ -323,14 +373,18 @@ namespace ZCPP
 
 			Type x, y, z, w;
 
-			Vec4(const Type _x, const Type _y, const Type _z, const Type _w) : x(_x), y(_y), z(_z), w(_w) {}
-			Vec4(const Type v) : x(v), y(v), z(v), w(v) {}
-			Vec4(const Vec3<Type> v, Type _w) : x(v.x), y(v.y), z(v.z), w(_w) {}
-			Vec4() : x(0), y(0), z(0), w(0) {}
+			constexpr Vec4() : x(0), y(0), z(0), w(0) {}
+			constexpr Vec4(const Type v) : x(v), y(v), z(v), w(v) {}
+			constexpr Vec4(const Type _x, const Type _y, const Type _z, const Type _w) : x(_x), y(_y), z(_z), w(_w) {}
+			constexpr Vec4(const Vec3<Type> v, const Type _w) : x(v.x), y(v.y), z(v.z), w(_w) {}
+			constexpr Vec4(const Vec2<Type> v0, const Vec2<Type> v1) : x(v0.x), y(v0.y), z(v1.x), w(v1.y) {}
+
+			operator Vec2<Type>() const { return Vec2<Type>(x, y); }
+			operator Vec3<Type>() const { return Vec3<Type>(x, y, z); }
 
 			static const Type Length(Vec4 v)
 			{
-				return sqrt(v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w);
+				return (Type)sqrt(v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w);
 			}
 
 			static const Type LengthSqr(Vec4 v)
@@ -344,12 +398,12 @@ namespace ZCPP
 				Type _y = v1.y - v0.y;
 				Type _z = v1.z - v0.z;
 				Type _w = v1.w - v0.w;
-				return sqrt(_x * _x + _y * _y + _z * _z + _w * _w);
+				return (Type)sqrt(_x * _x + _y * _y + _z * _z + _w * _w);
 			}
 
 			static Vec4 Normalized(Vec4 v)
 			{
-				Type d = 1.0 / Length(v);
+				Type d = ((Type)1.0) / Length(v);
 				return Vec4(v.x * d, v.y * d, v.z * d, v.w * d);
 			}
 
@@ -360,22 +414,22 @@ namespace ZCPP
 			
 			static Vec4 Floor(Vec4 v)
 			{
-				return Vec4(floor(v.x), floor(v.y), floor(v.z), floor(v.w));
+				return Vec4((Type)floor(v.x), (Type)floor(v.y), (Type)floor(v.z), (Type)floor(v.w));
 			}
 
 			static Vec4 Ceil(Vec4 v)
 			{
-				return Vec4(ceil(v.x), ceil(v.y), ceil(v.z), ceil(v.w));
+				return Vec4((Type)ceil(v.x), (Type)ceil(v.y), (Type)ceil(v.z), (Type)ceil(v.w));
 			}
 
 			static Vec4 Abs(Vec4 v)
 			{
-				return Vec4(abs(v.x), abs(v.y), abs(v.z), abs(v.w));
+				return Vec4((Type)abs(v.x), (Type)abs(v.y), (Type)abs(v.z), (Type)abs(v.w));
 			}
 
 			static Vec4 Reflect(Vec4 v, Vec4 n)
 			{
-				return v - n * 2.0 * DotProduct(v, n);
+				return v - n * ((Type)2.0) * DotProduct(v, n);
 			}
 
 			static Vec4 Conjugate(Vec4 v)
@@ -446,18 +500,32 @@ namespace ZCPP
 
 			Vec4 operator - () { return Vec4(-x, -y, -z, -w); }
 
-			template<typename Type> friend std::ostream& operator << (std::ostream& os, const Vec4<Type>& v);
+			Type& operator [](const size_t index)
+			{
+				switch (index)
+				{
+				case 0: return this->x;
+				case 1: return this->y;
+				case 2: return this->z;
+				case 3: return this->w;
+				}
+			}
+
+			TEMPLATE friend std::ostream& operator << (std::ostream& os, const Vec4<Type>& v);
 		};
 
-		template<typename Type = float> std::ostream& operator << (std::ostream& os, const Vec4<Type>& v)
+		TEMPLATE Vec4<Type> operator - (const float& lhs, const Vec4<Type>& rhs) { return Vec4(lhs) - rhs; }
+		TEMPLATE Vec4<Type> operator + (const float& lhs, const Vec4<Type>& rhs) { return Vec4(lhs) + rhs; }
+		TEMPLATE Vec4<Type> operator * (const float& lhs, const Vec4<Type>& rhs) { return Vec4(lhs) * rhs; }
+		TEMPLATE Vec4<Type> operator / (const float& lhs, const Vec4<Type>& rhs) { return Vec4(lhs) / rhs; }
+
+		TEMPLATE std::ostream& operator << (std::ostream& os, const Vec4<Type>& v)
 		{
 			os << "<" << v.x << ", " << v.y << ", " << v.z << ", " << v.w << ">";
 			return os;
 		}
 
-
-
-		template<typename Type = float> class Matrix2
+		TEMPLATE class Matrix2
 		{
 		public:
 			static_assert(
@@ -466,6 +534,8 @@ namespace ZCPP
 				std::is_same<Type, short int>() ||
 				std::is_same<Type, unsigned short int>() ||
 				std::is_same<Type, long int>() ||
+				std::is_same<Type, int>() ||
+				std::is_same<Type, unsigned int>() ||
 				std::is_same<Type, unsigned long int>() ||
 				std::is_same<Type, long long int>() ||
 				std::is_same<Type, unsigned long long int>() ||
@@ -474,31 +544,147 @@ namespace ZCPP
 				std::is_same<Type, long double>(),
 				"Invalid type used for Matrix2");
 
-			Type m[2][2]{ 0 };
+			Vec2<Type> m[2];
 
-			Matrix2() {}
+			constexpr Matrix2() { m[0] = 0; m[1] = 0; }
+			constexpr Matrix2(const Type v) { m[0] = v; m[1] = v; }
+			constexpr Matrix2(const Type m00, const Type m01, const Type m10, const Type m11)
+			{
+				m[0][0] = m00; m[0][1] = m01;
+				m[1][0] = m10; m[1][1] = m11;
+			}
+			constexpr Matrix2(const Vec2<Type> v0, const Vec2<Type> v1) { m[0] = v0; m[1] = v1; }
+
+			static Matrix2 Identity()
+			{
+				return Matrix2(1, 0, 0, 1);
+			}
+
+			static Matrix2 Adjugate(Matrix2 m)
+			{
+				return Matrix2(m[1][1], -m[0][1], -m[1][0], m[0][0]);
+			}
+
+			static Matrix2 Inverse(Matrix2 m)
+			{
+				Type det = m[0][0] * m[1][1] - m[0][1] * m[1][0];
+				return Matrix2(det, 0, 0, det);
+			}
+
+			static Matrix2 Normalize(Matrix2 m)
+			{
+				return Matrix2(m[0].Normalized(), m[1].Normalized());
+			}
+
+			static Matrix2 Shear(Vec2<Type> s)
+			{
+				Matrix2 m;
+
+				m = Identity();
+
+				m[0][1] = s.x;
+				m[1][1] = s.y;
+
+				return m;
+			}
+
+			static Matrix2 Shear(Type s0, Type s1)
+			{
+				return Shear(Vec2<Type>(s0, s1));
+			}
+
+			static Matrix2 Scale(Vec2<Type> s)
+			{
+				Matrix2 m;
+
+				m[0][0] = s.x;
+				m[1][1] = s.y;
+
+				return m;
+			}
+
+			static Matrix2 Scale(Type s0, Type s1)
+			{
+				return Scale(Vec2<Type>(s0, s1));
+			}
+
+			static Matrix2 Rotation(Type r)
+			{
+				Matrix2 m;
+				Type cr = (Type)cos(r);
+				Type sr = (Type)sin(r);
+				m[0] = Vec2<Type>(cr, -sr);
+				m[1] = Vec2<Type>(sr, cr);
+				return m;
+			}
+
+			static Matrix2 Multiply(Matrix2 m, Type v)
+			{
+				m[0][0] = m[0][0] * v;
+				m[0][1] = m[0][1] * v;
+				m[1][0] = m[1][0] * v;
+				m[1][1] = m[1][1] * v;
+
+				return m;
+			}
 
 			static Matrix2 Multiply(Matrix2 m0, Matrix2 m1)
 			{
-				Matrix2 m2;
-				m2.m[0][0] = m0.m[0][0] * m1.m[0][0] + m0.m[0][1] * m1.m[1][0];
-				m2.m[0][1] = m0.m[0][0] * m1.m[0][1] + m0.m[0][1] * m1.m[1][1];
+				Matrix2 m;
 
-				m2.m[1][0] = m0.m[1][0] * m1.m[0][0] + m0.m[1][1] * m1.m[1][0];
-				m2.m[1][1] = m0.m[1][0] * m1.m[0][1] + m0.m[1][1] * m1.m[1][1];
-				return m2;
+				m[0][0] = m0[0][0] * m1[0][0] + m0[0][1] * m1[1][0];
+				m[0][1] = m0[0][0] * m1[0][1] + m0[0][1] * m1[1][1];
+				m[1][0] = m0[1][0] * m1[0][0] + m0[1][1] * m1[1][0];
+				m[1][1] = m0[1][0] * m1[0][1] + m0[1][1] * m1[1][1];
+
+				return m;
 			}
 
-			static Vec2<Type> Multiply(Matrix2 m0, Vec2<Type> v0)
+			static const Vec2<Type> Multiply(Matrix2 m, Vec2<Type> v)
 			{
-				Vec2<Type> v1;
-				v1.x = v0.x * m0.m[0][0] + v0.y * m0.m[0][1];
-				v1.y = v0.x * m0.m[1][0] + v0.y * m0.m[1][1];
-				return v1;
+				Vec2<Type> V;
+
+				V[0] = m[0][0] * v[0] + m[0][1] * v[1];
+				V[1] = m[1][0] * v[0] + m[1][1] * v[1];
+
+				return V;
 			}
+
+			Matrix2 Adjugate()
+			{
+				return Adjugate(*this);
+			}
+
+			Matrix2 Inverse()
+			{
+				return Inverse(*this);
+			}
+
+			Type& operator()(const size_t index0, const size_t index1)
+			{
+				return m[index0][index1];
+			}
+
+			Vec2<Type>& operator [](const size_t index)
+			{
+				return m[index];
+			}
+
+			Matrix2 operator * (Type rhs) { return Multiply(*this, rhs); }
+			Matrix2 operator * (Matrix2 rhs) { return Multiply(*this, rhs); }
+			Vec2<Type> operator * (Vec2<Type> rhs) { return Multiply(*this, rhs); }
+
+			Matrix2 operator + (Matrix2 rhs) { return Matrix2(this[0][0] + rhs[0][0], this[0][1] + rhs[0][1], this[1][0] + rhs[1][0], this[1][1] + rhs[1][1]); }
+			Matrix2 operator - (Matrix2 rhs) { return Matrix2(this[0][0] - rhs[0][0], this[0][1] - rhs[0][1], this[1][0] - rhs[1][0], this[1][1] - rhs[1][1]); }
 		};
 
-		template<typename Type = float> class Matrix3
+		TEMPLATE std::ostream& operator << (std::ostream& os, const Matrix2<Type>& m)
+		{
+			os << "<" << m.m[0] << ", " << m.m[1] << ">";
+			return os;
+		}
+
+		TEMPLATE class Matrix3
 		{
 		public:
 			static_assert(
@@ -507,6 +693,8 @@ namespace ZCPP
 				std::is_same<Type, short int>() ||
 				std::is_same<Type, unsigned short int>() ||
 				std::is_same<Type, long int>() ||
+				std::is_same<Type, int>() ||
+				std::is_same<Type, unsigned int>() ||
 				std::is_same<Type, unsigned long int>() ||
 				std::is_same<Type, long long int>() ||
 				std::is_same<Type, unsigned long long int>() ||
@@ -515,38 +703,36 @@ namespace ZCPP
 				std::is_same<Type, long double>(),
 				"Invalid type used for Matrix3");
 
-			Type m[3][3]{ 0 };
+			Vec3<Type> m[3];
 
-			Matrix3() {}
-
-			static Matrix3 Multiply(Matrix3 m0, Matrix3 m1)
+			constexpr Matrix3() { m[0] = 0; m[1] = 0; m[2] = 0; }
+			constexpr Matrix3(const Type v) { m[0] = v; m[1] = v; m[2] = v; }
+			constexpr Matrix3(const Type m00, const Type m01, const Type m02, const Type m10, const Type m11, const Type m12, const Type m20, const Type m21, const Type m22)
 			{
-				Matrix3 m2;
-				m2.m[0][0] = m0.m[0][0] * m1.m[0][0] + m0.m[0][1] * m1.m[1][0] + m0.m[0][2] * m1.m[2][0];
-				m2.m[0][1] = m0.m[0][0] * m1.m[0][1] + m0.m[0][1] * m1.m[1][1] + m0.m[0][2] * m1.m[2][1];
-				m2.m[0][2] = m0.m[0][0] * m1.m[0][2] + m0.m[0][1] * m1.m[1][2] + m0.m[0][2] * m1.m[2][2];
-																										
-				m2.m[1][0] = m0.m[1][0] * m1.m[0][0] + m0.m[1][1] * m1.m[1][0] + m0.m[1][2] * m1.m[2][0];
-				m2.m[1][1] = m0.m[1][0] * m1.m[0][1] + m0.m[1][1] * m1.m[1][1] + m0.m[1][2] * m1.m[2][1];
-				m2.m[1][2] = m0.m[1][0] * m1.m[0][2] + m0.m[1][1] * m1.m[1][2] + m0.m[1][2] * m1.m[2][2];
-																										
-				m2.m[2][0] = m0.m[2][0] * m1.m[0][0] + m0.m[2][1] * m1.m[1][0] + m0.m[2][2] * m1.m[2][0];
-				m2.m[2][1] = m0.m[2][0] * m1.m[0][1] + m0.m[2][1] * m1.m[1][1] + m0.m[2][2] * m1.m[2][1];
-				m2.m[2][2] = m0.m[2][0] * m1.m[0][2] + m0.m[2][1] * m1.m[1][2] + m0.m[2][2] * m1.m[2][2];
-				return m2;
+				m[0][0] = m00; m[0][1] = m01; m[0][2] = m02;
+				m[1][0] = m10; m[1][1] = m11; m[1][2] = m12;
+				m[2][0] = m20; m[2][1] = m21; m[2][2] = m22;
+			}
+			constexpr Matrix3(const Vec3<Type> v0, const Vec3<Type> v1, const Vec3<Type> v2) { m[0] = v0; m[1] = v1; m[2] = v2; }
+
+			Type& operator()(const size_t index0, const size_t index1)
+			{
+				return m[index0][index1];
 			}
 
-			static Vec3<Type> Multiply(Matrix3 m0, Vec3<Type> v0)
+			Vec3<Type>& operator [](const size_t index)
 			{
-				Vec3<Type> v1;
-				v1.x = v0.x * m0.m[0][0] + v0.y * m0.m[0][1] + v0.z * m0.m[0][2];
-				v1.y = v0.x * m0.m[1][0] + v0.y * m0.m[1][1] + v0.z * m0.m[1][2];
-				v1.z = v0.x * m0.m[2][0] + v0.y * m0.m[2][1] + v0.z * m0.m[2][2];
-				return v1;
+				return m[index];
 			}
 		};
 
-		template<typename Type = float> class Matrix4
+		TEMPLATE std::ostream& operator << (std::ostream& os, const Matrix3<Type>& m)
+		{
+			os << "<" << m.m[0] << ", " << m.m[1] << ", " << m.m[2] << ">";
+			return os;
+		}
+
+		TEMPLATE class Matrix4
 		{
 		public:
 			static_assert(
@@ -555,6 +741,8 @@ namespace ZCPP
 				std::is_same<Type, short int>() ||
 				std::is_same<Type, unsigned short int>() ||
 				std::is_same<Type, long int>() ||
+				std::is_same<Type, int>() ||
+				std::is_same<Type, unsigned int>() ||
 				std::is_same<Type, unsigned long int>() ||
 				std::is_same<Type, long long int>() ||
 				std::is_same<Type, unsigned long long int>() ||
@@ -563,7 +751,30 @@ namespace ZCPP
 				std::is_same<Type, long double>(),
 				"Invalid type used for Matrix4");
 
-			Type m[4][4]{ 0 };
+			Vec4<Type> m[4];
+
+			constexpr Matrix4() { m[0] = 0; m[1] = 0; m[2] = 0; m[3] = 0; }
+			constexpr Matrix4(const Type v) { m[0] = v; m[1] = v; m[2] = v; m[3] = v; }
+			constexpr Matrix4(const Type m00, const Type m01, const Type m02, const Type m03, const Type m10, const Type m11, const Type m12, const Type m13, const Type m20, const Type m21, const Type m22, const Type m23, const Type m30, const Type m31, const Type m32, const Type m33)
+			{
+				m[0][0] = m00; m[0][1] = m01; m[0][2] = m02; m[0][3] = m03;
+				m[1][0] = m10; m[1][1] = m11; m[1][2] = m12; m[1][3] = m13;
+				m[2][0] = m20; m[2][1] = m21; m[2][2] = m22; m[2][3] = m23;
+				m[3][0] = m20; m[3][1] = m21; m[3][2] = m22; m[3][3] = m23;
+			}
+			constexpr Matrix4(const Vec4<Type> v0, const Vec4<Type> v1, const Vec4<Type> v2, const Vec4<Type> v3) { m[0] = v0; m[1] = v1; m[2] = v2; m[3] = v3; }
+
+			Type& operator()(const size_t index0, const size_t index1)
+			{
+				return m[index0][index1];
+			}
+
+			Vec4<Type>& operator [](const size_t index)
+			{
+				return m[index];
+			}
+
+			/*Type m[4][4]{ 0 };
 
 			Matrix4() {}
 
@@ -660,10 +871,18 @@ namespace ZCPP
 			}
 
 			Matrix4 operator * (Matrix4 rhs) { return Multiply(*this, rhs); }
-			Vec4<Type> operator * (Vec4<Type> rhs) { return Multiply(*this, rhs); }
+			Vec4<Type> operator * (Vec4<Type> rhs) { return Multiply(*this, rhs); }*/
 		};
 
-		template<typename Type = float> class Quaternion : public Vec4<Type>
+		TEMPLATE std::ostream& operator << (std::ostream& os, const Matrix4<Type>& m)
+		{
+			os << "<" << m.m[0] << ", " << m.m[1] << ", " << m.m[2] << ", " << m.m[3] << ">";
+			return os;
+		}
+
+
+
+		TEMPLATE class Quaternion : public Vec4<Type>
 		{
 		public:
 			static_assert(
@@ -672,6 +891,8 @@ namespace ZCPP
 				std::is_same<Type, short int>() ||
 				std::is_same<Type, unsigned short int>() ||
 				std::is_same<Type, long int>() ||
+				std::is_same<Type, int>() ||
+				std::is_same<Type, unsigned int>() ||
 				std::is_same<Type, unsigned long int>() ||
 				std::is_same<Type, long long int>() ||
 				std::is_same<Type, unsigned long long int>() ||
@@ -680,12 +901,12 @@ namespace ZCPP
 				std::is_same<Type, long double>(),
 				"Invalid type used for Quaternion");
 
-			Quaternion(Vec3<Type> v) { this->x = v.x; this->y = v.y; this->z = v.z; this->w = 0; }
-			Quaternion(Vec4<Type> v) { this->x = v.x; this->y = v.y; this->z = v.z; this->w = v.w; }
-			Quaternion(Type _x, Type _y, Type _z, Type _w) { this->x = _x; this->y = _y; this->z = _z; this->w = _w; }
-			Quaternion() { this->x = 0; this->y = 0; this->z = 0; this->w = 1; }
+			constexpr Quaternion() { this->x = 0; this->y = 0; this->z = 0; this->w = 1; }
+			constexpr Quaternion(Vec3<Type> v) { this->x = v.x; this->y = v.y; this->z = v.z; this->w = 0; }
+			constexpr Quaternion(Vec4<Type> v) { this->x = v.x; this->y = v.y; this->z = v.z; this->w = v.w; }
+			constexpr Quaternion(Type _x, Type _y, Type _z, Type _w) { this->x = _x; this->y = _y; this->z = _z; this->w = _w; }
 
-			static Quaternion Identity()
+			constexpr static Quaternion Identity()
 			{
 				return Quaternion(0, 0, 0, 1);
 			}
@@ -812,7 +1033,7 @@ namespace ZCPP
 			template<typename Type> friend std::ostream& operator << (std::ostream& os, const Quaternion<Type>& v);
 		};
 
-		template<typename Type = float> std::ostream& operator << (std::ostream& os, const Quaternion<Type>& v)
+		TEMPLATE std::ostream& operator << (std::ostream& os, const Quaternion<Type>& v)
 		{
 			os << "<" << v.x << ", " << v.y << ", " << v.z << ", " << v.w << ">";
 			return os;
@@ -829,6 +1050,18 @@ namespace ZCPP
 		typedef Vec4<double> Vec4d;
 		typedef Vec4<float> Vec4f;
 		typedef Vec4<long int> Vec4i;
+
+		typedef Matrix2<double> Matrix2d;
+		typedef Matrix2<float> Matrix2f;
+		typedef Matrix2<long int> Matrix2i;
+
+		typedef Matrix3<double> Matrix3d;
+		typedef Matrix3<float> Matrix3f;
+		typedef Matrix3<long int> Matrix3i;
+
+		typedef Matrix4<double> Matrix4d;
+		typedef Matrix4<float> Matrix4f;
+		typedef Matrix4<long int> Matrix4i;
 
 		typedef Quaternion<double> Quaterniond;
 		typedef Quaternion<float> Quaternionf;
